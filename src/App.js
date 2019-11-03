@@ -5,8 +5,10 @@ import SearchResult from "./SearchResult";
 import ListBooks from "./ListBooks";
 import { Link, Route } from "react-router-dom";
 
+
 class BooksApp extends React.Component {
   booksObject;
+  searchObj;
 
   constructor(props) {
     super(props);
@@ -19,6 +21,7 @@ class BooksApp extends React.Component {
     };
 
     this.booksObject = {};
+    this.searchObj = {};
   }
 
   // Method to get all books first time
@@ -32,7 +35,7 @@ class BooksApp extends React.Component {
         console.log("Error fetching data", error);
       });
   }
-// Method to return array of categories 
+  // Method to return array of categories
   getCategory = books => {
     books.map(b =>
       this.booksObject.hasOwnProperty(b.shelf)
@@ -63,8 +66,14 @@ class BooksApp extends React.Component {
   getInfo = () => {
     this.setState({ searchArray: [] });
     BooksAPI.search(this.state.query)
-      .then(searchArray => {
-        this.setState({ searchArray });
+      .then(result => {
+        result.map(s => (this.searchObj[s.id] = s));
+        this.state.books.map(b =>
+          (typeof this.searchObj[b.id] === "object") === true
+            ? (this.searchObj[b.id].shelf = b.shelf)
+            : console.log("error")
+        );
+        this.setState({ searchArray: Object.values(this.searchObj) });
       })
       .catch(error => {
         console.log("Error searching data", error);

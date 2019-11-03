@@ -1,18 +1,25 @@
 import React, { Component } from "react";
 import * as BooksAPI from "./BooksAPI";
+// import Background from './img/book'
+// import { url} from 'url'
 
 class SearchResult extends Component {
+  Background;
+
   constructor(props) {
     super(props);
 
     this.state = {
       bookStatus: {}
     };
+
+    this.Background =
+      "https://epi-rsc.rsc-cdn.org/globalassets/00-sitewide/media/icons/download-bl.png?version=3f1b941e";
   }
 
   // Method to update book shelf
   updateShelf = (book, shelf) => {
-    if (shelf !== "none") {
+    if (shelf !== "") {
       BooksAPI.update(book, shelf).then(res => {
         this.setState({ bookStatus: { book: book, shelf: shelf } });
       });
@@ -34,10 +41,12 @@ class SearchResult extends Component {
                         style={{
                           width: 128,
                           height: 193,
+                          backgroundRepeat: "no-repeat",
+                          backgroundPosition: "center",
                           backgroundImage: `url(${
                             a.imageLinks
                               ? a.imageLinks.smallThumbnail
-                              : "undefined"
+                              : this.Background
                           })`
                         }}
                       ></div>
@@ -48,12 +57,25 @@ class SearchResult extends Component {
                           <option value="move" disabled>
                             Move to...
                           </option>
-                          <option value="currentlyReading">
+                          <option value="" selected></option>
+                          <option
+                            value="currentlyReading"
+                            selected={a.shelf === "currentlyReading"}
+                          >
                             Currently Reading
                           </option>
-                          <option value="wantToRead">Want to Read</option>
-                          <option value="read">Read</option>
-                          <option value="none">None</option>
+                          <option
+                            value="wantToRead"
+                            selected={a.shelf === "wantToRead"}
+                          >
+                            Want to Read
+                          </option>
+                          <option value="read" selected={a.shelf === "read"}>
+                            Read
+                          </option>
+                          <option value="none" selected={a.shelf === "none"}>
+                            None
+                          </option>
                         </select>
                       </div>
                     </div>
