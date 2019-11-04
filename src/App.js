@@ -44,9 +44,7 @@ class BooksApp extends React.Component {
         ? this.booksObject[b.shelf].push(b)
         : (this.booksObject[b.shelf] = [b])
     );
-    console.log(this.booksObject)
     this.setState(() => ({ booksList: Object.entries(this.booksObject) }));
-    console.log(this.state.booksList)
   };
 
   componentDidMount() {
