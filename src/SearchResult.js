@@ -26,7 +26,9 @@ class SearchResult extends Component {
         query: query
       },
       () => {
-        if (this.state.query && this.state.query.length > 0) {
+        if (this.state.query.length > 0) {
+          this.setState({ searchArray: [] });
+          this.searchObj = {};
           this.getInfo();
         } else {
           this.setState(() => ({ searchArray: [] }));
@@ -37,7 +39,6 @@ class SearchResult extends Component {
 
   // Method search and return all books that matches the query
   getInfo = () => {
-    this.setState({ searchArray: [] });
     BooksAPI.search(this.state.query)
       .then(result => {
         result.map(s => (s.shelf = "none"));
@@ -52,7 +53,7 @@ class SearchResult extends Component {
         this.setState({ searchArray: Object.values(this.searchObj) });
       })
       .catch(error => {
-        console.log("Error searching data", error);
+        // console.log("Error searching data", error);
       });
   };
 
@@ -74,7 +75,8 @@ class SearchResult extends Component {
           </div>
         </div>
 
-        {Array.isArray(this.state.searchArray) === true ? (
+        {Array.isArray(this.state.searchArray) === true &&
+        this.state.searchArray.length > 0 ? (
           <div className="search-books-results">
             <ol className="books-grid">
               {this.state.searchArray.map(a => (
@@ -125,7 +127,7 @@ class SearchResult extends Component {
             </ol>
           </div>
         ) : (
-          <div className="not-found"> Not Found ... </div>
+          <div className="not-found"> </div>
         )}
       </div>
     );

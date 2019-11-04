@@ -7,16 +7,20 @@ import { Route } from "react-router-dom";
 import { Switch } from "react-router";
 
 class BooksApp extends React.Component {
+  
+  // this object to categorize the returned result from get all api
+  // handel data to be key : [{ } , { } ] then convert this object to array to can do loop
   booksObject;
+  books;
 
   constructor(props) {
     super(props);
 
     this.state = {
-      books: [],
       booksList: []
     };
 
+    this.books = [];
     this.booksObject = {};
   }
 
@@ -24,26 +28,25 @@ class BooksApp extends React.Component {
   fillBooksState() {
     BooksAPI.getAll()
       .then(books => {
-        this.setState(() => ({ books }));
-        // console.log( 'books' , this.state.books);
-        this.getCategory(this.state.books);
+        this.books = books;
+        this.booksObject = {};
+        this.getCategory(this.books);
       })
       .catch(error => {
         console.log("Error fetching data", error);
       });
   }
 
-  // Method to return array of categories
+  // Method to return array of categories with their array of objects
   getCategory = books => {
     books.map(b =>
       this.booksObject.hasOwnProperty(b.shelf)
         ? this.booksObject[b.shelf].push(b)
         : (this.booksObject[b.shelf] = [b])
     );
-    // console.log( 'booksobject' , this.booksObject);
-    this.setState({ booksList: Object.entries(this.booksObject) });
-    // console.log( 'bookslist' , this.state.booksList);
-    return this.state.booksList;
+    console.log(this.booksObject)
+    this.setState(() => ({ booksList: Object.entries(this.booksObject) }));
+    console.log(this.state.booksList)
   };
 
   componentDidMount() {
@@ -59,7 +62,7 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-        {/* Draw the html of the 3 categories with their books */}
+        {/* Draw the html for the 3 categories with their books */}
         <Switch>
           <Route
             exact
@@ -76,10 +79,7 @@ class BooksApp extends React.Component {
           <Route
             path="/search"
             render={() => (
-              <SearchResult
-                books={this.state.books}
-                updateShelf={this.updateShelf}
-              />
+              <SearchResult books={this.books} updateShelf={this.updateShelf} />
             )}
           />
         </Switch>
