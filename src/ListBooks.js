@@ -1,32 +1,14 @@
 import React, { Component } from "react";
-import * as BooksAPI from "./BooksAPI";
+import { Link } from "react-router-dom";
 
 class ListBooks extends Component {
-
   Background;
 
   constructor(props) {
     super(props);
 
-    this.state = {
-      bookStatus: {}
-    };
     this.Background =
-    "https://epi-rsc.rsc-cdn.org/globalassets/00-sitewide/media/icons/download-bl.png?version=3f1b941e";
-  }
-// Method to update book shelf
-  updateShelf = (book, shelf) => {
-    // if (shelf !== "") {
-      BooksAPI.update(book, shelf).then(res => {
-        this.setState({ bookStatus: { book: book, shelf: shelf } });
-
-        //I tried to do it but i got errors , and i don't know how to fix it
-        // book.shelf = shelf;
-        // this.setState((state) => ({ booksList: state.booksList.filter((b) => b.title !== book.title).concat([book]) } ));
-        // console.log(this.state)
-
-      });
-    // }
+      "https://epi-rsc.rsc-cdn.org/globalassets/00-sitewide/media/icons/download-bl.png?version=3f1b941e";
   }
 
   render() {
@@ -63,19 +45,20 @@ class ListBooks extends Component {
                             ></div>
                             <div className="book-shelf-changer">
                               <select
+                                defaultValue={a.shelf}
                                 onChange={e =>
-                                  this.updateShelf(a, e.target.value)
+                                  this.props.updateShelf(a, e.target.value)
                                 }
                               >
                                 <option value="move" disabled>
                                   Move to...
                                 </option>
-                                <option value="currentlyReading" selected={a.shelf === 'currentlyReading'} >
+                                <option value="currentlyReading">
                                   Currently Reading
                                 </option>
-                                <option value="wantToRead" selected={a.shelf === 'wantToRead'} >Want to Read</option>
-                                <option value="read" selected={a.shelf === 'read'}>Read</option>
-                                <option value="none" selected={a.shelf === 'none'}>None</option>
+                                <option value="wantToRead">Want to Read</option>
+                                <option value="read">Read</option>
+                                <option value="none">None</option>
                               </select>
                             </div>
                           </div>
@@ -91,6 +74,12 @@ class ListBooks extends Component {
           ) : (
             <div> Loading ... </div>
           )}
+        </div>
+
+        <div className="open-search">
+          <Link className="btn-add" to="/search">
+            Add a book
+          </Link>
         </div>
       </div>
     );

@@ -1,38 +1,83 @@
 import React, { Component } from "react";
 import * as BooksAPI from "./BooksAPI";
-// import Background from './img/book'
-// import { url} from 'url'
+import { Link } from "react-router-dom";
 
 class SearchResult extends Component {
   Background;
+  searchObj;
 
   constructor(props) {
     super(props);
 
     this.state = {
-      bookStatus: {}
+      query: "",
+      searchArray: []
     };
 
     this.Background =
       "https://epi-rsc.rsc-cdn.org/globalassets/00-sitewide/media/icons/download-bl.png?version=3f1b941e";
+    this.searchObj = {};
   }
 
-  // Method to update book shelf
-  updateShelf = (book, shelf) => {
-    if (shelf !== "") {
-      BooksAPI.update(book, shelf).then(res => {
-        this.setState({ bookStatus: { book: book, shelf: shelf } });
+  // Method to update state with the entered query and call search method
+  handleInputChange = query => {
+    this.setState(
+      {
+        query: query
+      },
+      () => {
+        if (this.state.query && this.state.query.length > 0) {
+          this.getInfo();
+        } else {
+          this.setState(() => ({ searchArray: [] }));
+        }
+      }
+    );
+  };
+
+  // Method search and return all books that matches the query
+  getInfo = () => {
+    this.setState({ searchArray: [] });
+    BooksAPI.search(this.state.query)
+      .then(result => {
+        result.map(s => (s.shelf = "none"));
+        result.map(s => (this.searchObj[s.id] = s));
+
+        this.props.books.map(
+          b =>
+            (typeof this.searchObj[b.id] === "object") === true &&
+            (this.searchObj[b.id].shelf = b.shelf)
+        );
+
+        this.setState({ searchArray: Object.values(this.searchObj) });
+      })
+      .catch(error => {
+        console.log("Error searching data", error);
       });
-    }
   };
 
   render() {
     return (
-      <div>
-        {Array.isArray(this.props.searchArray) === true ? (
+      <div className="search-books">
+        <div className="search-books-bar">
+          <Link className="close-search" to="/">
+            close
+          </Link>
+
+          <div className="search-books-input-wrapper">
+            <input
+              type="text"
+              placeholder="Search by title or author"
+              value={this.state.query}
+              onChange={event => this.handleInputChange(event.target.value)}
+            />
+          </div>
+        </div>
+
+        {Array.isArray(this.state.searchArray) === true ? (
           <div className="search-books-results">
             <ol className="books-grid">
-              {this.props.searchArray.map(a => (
+              {this.state.searchArray.map(a => (
                 <li key={a.id}>
                   <div className="book">
                     <div className="book-top">
@@ -52,30 +97,21 @@ class SearchResult extends Component {
                       ></div>
                       <div className="book-shelf-changer">
                         <select
-                          onChange={e => this.updateShelf(a, e.target.value)}
+                          defaultValue={a.shelf}
+                          onChange={e =>
+                            this.props.updateShelf(a, e.target.value)
+                          }
                         >
                           <option value="move" disabled>
                             Move to...
                           </option>
-                          <option value="" selected></option>
-                          <option
-                            value="currentlyReading"
-                            selected={a.shelf === "currentlyReading"}
-                          >
+
+                          <option value="currentlyReading">
                             Currently Reading
                           </option>
-                          <option
-                            value="wantToRead"
-                            selected={a.shelf === "wantToRead"}
-                          >
-                            Want to Read
-                          </option>
-                          <option value="read" selected={a.shelf === "read"}>
-                            Read
-                          </option>
-                          <option value="none" selected={a.shelf === "none"}>
-                            None
-                          </option>
+                          <option value="wantToRead">Want to Read</option>
+                          <option value="read">Read</option>
+                          <option value="none">None</option>
                         </select>
                       </div>
                     </div>
